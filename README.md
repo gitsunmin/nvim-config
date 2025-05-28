@@ -13,6 +13,9 @@ This is my neovim configuration.
 
 - ^: focus on the first letter of a sentence
 - $: focus on the last letter of a sentence
+- ${number}G: focus on a specific line
+- gg: focus on a first line
+- G: focus on a last line
 
 ### Custom
 
