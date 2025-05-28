@@ -8,6 +8,17 @@ vim.g.mapleader = " "
 -- jj로 모드 전환
 vim.keymap.set("i", "jj", "<Esc>")
 
+vim.keymap.set("n", "<leader>n", function()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    local ft = vim.api.nvim_buf_get_option(buf, "filetype")
+    if ft == "NvimTree" then
+      vim.api.nvim_set_current_win(win)
+      break
+    end
+  end
+end, { desc = "NvimTree 창으로 포커스 이동" })
+
 -- packer 자동 설치
 local ensure_packer = function()
   local fn = vim.fn
@@ -36,6 +47,7 @@ require('packer').startup(function(use)
     requires = 'nvim-tree/nvim-web-devicons',
     config = function()
       require("nvim-tree").setup({})
+      vim.keymap.set("n", "<Space>", api.node.open.edit, { buffer = bufnr, desc = "파일 열기 (space)" })
       vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { desc = "파일 탐색기 토글" })
     end
   }
@@ -51,6 +63,17 @@ require('packer').startup(function(use)
       vim.keymap.set('n', '<leader>fg', builtin.live_grep,  { desc = "텍스트 검색" })
       vim.keymap.set('n', '<leader>fb', builtin.buffers,    { desc = "버퍼 목록" })
       vim.keymap.set('n', '<leader>fh', builtin.help_tags,  { desc = "도움말 검색" })
+    end
+  }
+
+  use {
+    'akinsho/bufferline.nvim',
+    tag = "*",
+    requires = 'nvim-tree/nvim-web-devicons',
+    config = function()
+      require("bufferline").setup{}
+      vim.keymap.set("n", "<Tab>", ":BufferLineCycleNext<CR>", { desc = "다음 버퍼" })
+      vim.keymap.set("n", "<S-Tab>", ":BufferLineCyclePrev<CR>", { desc = "이전 버퍼" })
     end
   }
 
