@@ -13,9 +13,12 @@ This is my neovim configuration.
 
 - ^: focus on the first letter of a sentence
 - $: focus on the last letter of a sentence
+- d$: delete from cursor to end of line 
 - ${number}G: focus on a specific line
 - gg: focus on a first line
 - G: focus on a last line
+
+
 
 ### Custom
 
@@ -37,3 +40,10 @@ This is my neovim configuration.
 
 - space + e: Fold and unfold the tree view.
 - space + n: focus tree view
+
+### buffer (bufferline)
+
+#### Custom
+
+- Tab: next buffer
+- Shift + Tab: previous buffer
