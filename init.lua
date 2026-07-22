@@ -19,66 +19,65 @@ vim.keymap.set("n", "<leader>n", function()
   end
 end, { desc = "NvimTree 창으로 포커스 이동" })
 
--- packer 자동 설치
-local ensure_packer = function()
-  local fn = vim.fn
-  local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
-  if fn.empty(fn.glob(install_path)) > 0 then
-    fn.system({
-      "git", "clone", "--depth", "1",
-      "https://github.com/wbthomason/packer.nvim",
-      install_path
-    })
-    vim.cmd([[packadd packer.nvim]])
-    return true
-  end
-  return false
+-- lazy.nvim 자동 설치
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git", "clone", "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath,
+  })
 end
+vim.opt.rtp:prepend(lazypath)
 
-local packer_bootstrap = ensure_packer()
-
--- packer 설정 시작
-require('packer').startup(function(use)
-  use 'wbthomason/packer.nvim' -- packer 자체
-
+-- 플러그인 설정
+require("lazy").setup({
   -- 파일 탐색기
-  use {
-    'nvim-tree/nvim-tree.lua',
-    requires = 'nvim-tree/nvim-web-devicons',
+  {
+    "nvim-tree/nvim-tree.lua",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("nvim-tree").setup({})
-      vim.keymap.set("n", "<Space>", api.node.open.edit, { buffer = bufnr, desc = "파일 열기 (space)" })
       vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { desc = "파일 탐색기 토글" })
-    end
-  }
+    end,
+  },
 
   -- Telescope + plenary
-  use {
-    'nvim-telescope/telescope.nvim',
-    tag = '0.1.6',
-    requires = { 'nvim-lua/plenary.nvim' },
+  {
+    "nvim-telescope/telescope.nvim",
+    tag = "0.1.6",
+    dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
-      local builtin = require('telescope.builtin')
-      vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = "파일 찾기" })
-      vim.keymap.set('n', '<leader>fg', builtin.live_grep,  { desc = "텍스트 검색" })
-      vim.keymap.set('n', '<leader>fb', builtin.buffers,    { desc = "버퍼 목록" })
-      vim.keymap.set('n', '<leader>fh', builtin.help_tags,  { desc = "도움말 검색" })
-    end
-  }
+      local builtin = require("telescope.builtin")
+      vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "파일 찾기" })
+      vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "텍스트 검색" })
+      vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "버퍼 목록" })
+      vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "도움말 검색" })
+    end,
+  },
 
-  use {
-    'akinsho/bufferline.nvim',
-    tag = "*",
-    requires = 'nvim-tree/nvim-web-devicons',
+  -- 터미널
+  {
+    "akinsho/toggleterm.nvim",
+    version = "*",
     config = function()
-      require("bufferline").setup{}
+      require("toggleterm").setup({
+        open_mapping = [[<C-\>]],
+        direction = "float",
+      })
+    end,
+  },
+
+  -- 버퍼라인
+  {
+    "akinsho/bufferline.nvim",
+    version = "*",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("bufferline").setup({})
       vim.keymap.set("n", "<Tab>", ":BufferLineCycleNext<CR>", { desc = "다음 버퍼" })
       vim.keymap.set("n", "<S-Tab>", ":BufferLineCyclePrev<CR>", { desc = "이전 버퍼" })
-    end
-  }
-
-  -- 최초 설치 후 동기화
-  if packer_bootstrap then
-    require('packer').sync()
-  end
-end)
+    end,
+  },
+})
