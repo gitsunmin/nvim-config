@@ -17,8 +17,14 @@ This is my neovim configuration.
 - ${number}G: focus on a specific line
 - gg: focus on a first line
 - G: focus on a last line
-
-
+- y: copy selected text
+- yy: copy current line
+- yw: cpoy word
+- y$: cpoy to end of line
+- "+y: cpoy to system clipboard
+- p: put after cursor
+- P: put before cursor
+- "+p: put from system clipboard
 
 ### Custom
 
