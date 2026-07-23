@@ -41,6 +41,42 @@ This is my neovim configuration.
 - space + e: Fold and unfold the tree view.
 - space + n: focus tree view
 
+### Telescope
+
+#### Custom
+
+- space + ff: 파일 찾기 (find_files)
+- space + fg: 텍스트 검색 (live_grep)
+- space + fb: 버퍼 목록 (buffers)
+- space + fh: 도움말 검색 (help_tags)
+
+### Git (gitsigns)
+
+#### Default
+
+- 파일 변경 시 줄 번호 옆에 추가(│), 수정(│), 삭제(\_) 표시가 자동으로 나타남
+
+#### Custom
+
+- ]h: 다음 변경 사항으로 이동
+- [h: 이전 변경 사항으로 이동
+- space + gp: 변경 사항 미리보기 (팝업)
+- space + gs: 변경 사항 스테이지 (git add)
+- space + gu: 스테이지 취소
+- space + gr: 변경 사항 되돌리기 (reset)
+- space + gb: 현재 줄의 마지막 커밋 정보 보기 (blame)
+
+### Lazygit (toggleterm)
+
+#### 사전 요구사항
+
+- lazygit 설치 필요: `brew install lazygit`
+
+#### Custom
+
+- space + lg: Lazygit 열기 (플로팅 터미널)
+- q: Lazygit 종료 (lazygit 내부 단축키)
+
 ### buffer (bufferline)
 
 #### Custom
