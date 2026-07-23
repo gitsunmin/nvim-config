@@ -77,6 +77,12 @@ This is my neovim configuration.
 - space + lg: Lazygit 열기 (플로팅 터미널)
 - q: Lazygit 종료 (lazygit 내부 단축키)
 
+### Git Graph (gitgraph.nvim)
+
+#### Custom
+
+- space + gl: Git 그래프 보기 (커밋 히스토리를 그래프로 시각화)
+
 ### buffer (bufferline)
 
 #### Custom
