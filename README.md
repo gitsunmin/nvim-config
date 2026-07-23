@@ -25,6 +25,9 @@ This is my neovim configuration.
 - p: put after cursor
 - P: put before cursor
 - "+p: put from system clipboard
+- u: undo last change
+- ctrl + r: redo last undone change
+- U: undo all recent changes on current line
 
 ### Custom
 
