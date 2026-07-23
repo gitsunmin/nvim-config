@@ -109,6 +109,26 @@ This is my neovim configuration.
 
 - space + ic: 화면의 이미지 모두 지우기
 
+### GitHub (octo.nvim)
+
+#### 사전 요구사항
+
+- GitHub CLI 설치 및 인증 필요: `brew install gh && gh auth login`
+
+#### Custom
+
+- space + oil: 이슈 목록 보기
+- space + oic: 이슈 생성
+- space + opl: PR 목록 보기
+- space + opc: PR 생성
+- space + opd: PR diff 보기
+- space + opm: PR 병합
+- space + oca: 코멘트 추가
+- space + ora: 리뷰 시작
+- space + ors: 리뷰 제출
+- space + olb: 라벨 추가
+- space + oas: 담당자 추가
+
 ### buffer (bufferline)
 
 #### Custom
