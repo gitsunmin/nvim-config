@@ -92,6 +92,23 @@ This is my neovim configuration.
 
 - space + gl: Git 그래프 보기 (커밋 히스토리를 그래프로 시각화)
 
+### Image (image.nvim)
+
+#### 사전 요구사항
+
+- ImageMagick 설치 필요: `brew install imagemagick`
+- Kitty graphics protocol을 지원하는 터미널 필요 (Kitty, WezTerm 등)
+- luarocks 설치 필요: `brew install luarocks`
+
+#### Default
+
+- Markdown 파일 내 이미지를 자동으로 인라인 미리보기
+- 지원 형식: PNG, JPG, GIF 등
+
+#### Custom
+
+- space + ic: 화면의 이미지 모두 지우기
+
 ### buffer (bufferline)
 
 #### Custom
