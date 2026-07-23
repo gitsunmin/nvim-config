@@ -2,8 +2,11 @@
 
 -- 기본 옵션
 vim.opt.number = true
+-- 1. Neovim이 터미널의 창/탭 제목(Title)을 변경할 수 있도록 권한을 켭니다.
+vim.opt.title = true
 vim.opt.relativenumber = true
 vim.g.mapleader = " "
+vim.opt.titlestring = "📂 %{fnamemodify(getcwd(), ':t')} [%t]"
 
 -- jj로 모드 전환
 vim.keymap.set("i", "jj", "<Esc>")
@@ -66,6 +69,33 @@ require("lazy").setup({
         open_mapping = [[<C-\>]],
         direction = "float",
       })
+
+      -- lazygit 터미널
+      local Terminal = require("toggleterm.terminal").Terminal
+      local lazygit = Terminal:new({
+        cmd = "lazygit",
+        direction = "float",
+        hidden = true,
+        float_opts = {
+          border = "curved",
+        },
+      })
+      vim.keymap.set("n", "<leader>lg", function() lazygit:toggle() end, { desc = "Lazygit 열기" })
+    end,
+  },
+
+  -- Git 표시
+  {
+    "lewis6991/gitsigns.nvim",
+    config = function()
+      require("gitsigns").setup({})
+      vim.keymap.set("n", "]h", ":Gitsigns next_hunk<CR>", { desc = "다음 변경 사항" })
+      vim.keymap.set("n", "[h", ":Gitsigns prev_hunk<CR>", { desc = "이전 변경 사항" })
+      vim.keymap.set("n", "<leader>gp", ":Gitsigns preview_hunk<CR>", { desc = "변경 사항 미리보기" })
+      vim.keymap.set("n", "<leader>gs", ":Gitsigns stage_hunk<CR>", { desc = "변경 사항 스테이지" })
+      vim.keymap.set("n", "<leader>gu", ":Gitsigns undo_stage_hunk<CR>", { desc = "스테이지 취소" })
+      vim.keymap.set("n", "<leader>gr", ":Gitsigns reset_hunk<CR>", { desc = "변경 사항 되돌리기" })
+      vim.keymap.set("n", "<leader>gb", ":Gitsigns blame_line<CR>", { desc = "현재 줄 blame 보기" })
     end,
   },
 
