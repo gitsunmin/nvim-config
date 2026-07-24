@@ -12,6 +12,12 @@ vim.opt.langmap = "ㅁa,ㅠb,ㅊc,ㅇd,ㄷe,ㄹf,ㅎg,ㅗh,ㅑi,ㅓj,ㅏk,ㅣl,�
 -- jj로 모드 전환
 vim.keymap.set("i", "jj", "<Esc>")
 
+-- 윈도우 간 포커스 이동 (Ctrl+h/j/k/l)
+vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "왼쪽 윈도우로 이동" })
+vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "아래 윈도우로 이동" })
+vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "위 윈도우로 이동" })
+vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "오른쪽 윈도우로 이동" })
+
 vim.keymap.set("n", "<leader>n", function()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local buf = vim.api.nvim_win_get_buf(win)
