@@ -129,6 +129,26 @@ This is my neovim configuration.
 - space + olb: 라벨 추가
 - space + oas: 담당자 추가
 
+### Claude Code (claudecode.nvim)
+
+#### 사전 요구사항
+
+- Claude Code CLI 설치 필요: `npm install -g @anthropic-ai/claude-code`
+- snacks.nvim 의존성 (자동 설치됨)
+
+#### Custom
+
+- space + ac: Claude 터미널 토글 (열기/닫기)
+- space + af: Claude 터미널로 포커스 이동
+- space + ar: 이전 대화 이어하기 (--resume)
+- space + aC: 대화 계속하기 (--continue)
+- space + am: Claude 모델 선택
+- space + ab: 현재 버퍼를 Claude 컨텍스트에 추가
+- space + as: (Visual 모드) 선택한 텍스트를 Claude에 전송
+- space + as: (파일 탐색기) 파일을 Claude 컨텍스트에 추가
+- space + aa: Diff 수락
+- space + ad: Diff 거부
+
 ### buffer (bufferline)
 
 #### Custom
