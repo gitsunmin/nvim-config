@@ -14,6 +14,7 @@ navigation, Git workflows, GitHub/PR review, LSP-powered editing, and Claude Cod
 - A terminal that supports the **Kitty graphics protocol** (Kitty, WezTerm, etc.) for inline image previews
 - **[GitHub CLI](https://cli.github.com/)**, authenticated — `brew install gh && gh auth login` (required by octo.nvim)
 - **[Claude Code CLI](https://github.com/anthropics/claude-code)** — `npm install -g @anthropic-ai/claude-code`
+- *(optional)* **[macism](https://github.com/laishulu/macism)** (macOS) / `ibus` or `fcitx5-remote` (Linux) — lets `<C-;>` force-switch the input source to English (see [IME Force-English Escape](#ime-force-english-escape-luaconfigimelua))
 
 LSP servers and formatters (e.g. `lua_ls`, `stylua`) are installed automatically by
 [mason.nvim](https://github.com/williamboman/mason.nvim) on first launch — no manual setup needed.
@@ -30,11 +31,12 @@ LSP servers and formatters (e.g. `lua_ls`, `stylua`) are installed automatically
 ## Project Structure
 
 ```
-init.lua                   -- entry point; loads config.options, config.keymaps, config.lazy
+init.lua                   -- entry point; loads config.options, config.keymaps, config.ime, config.lazy
 lua/
   config/
     options.lua             -- core vim.opt settings (indentation, clipboard, undo, search, etc.)
     keymaps.lua              -- global keymaps that don't belong to any single plugin
+    ime.lua                  -- <C-;> forces English input + leaves Insert mode (OS-detected backend)
     lazy.lua                 -- lazy.nvim bootstrap + plugin spec loader
   plugins/
     colorscheme.lua          -- tokyonight theme
@@ -70,6 +72,29 @@ Set in `lua/config/options.lua`:
 | `undofile` | on | undo history persists across restarts |
 | `langmap` | Korean → QWERTY | lets normal-mode commands work even while the IME shows Hangul |
 
+## IME Force-English Escape (`lua/config/ime.lua`)
+
+Fixes a common annoyance: leaving Insert mode while the OS input source is still set to Korean (or
+any non-Latin IME) breaks `:` commands, `/` search, `<leader>` sequences, and other Normal-mode keys
+that expect ASCII.
+
+`<C-;>` in Insert mode leaves to Normal mode (like `<Esc>`) **and** forces the OS input source to
+English, regardless of whether it was Korean or English beforehand — no state tracking, no
+save/restore, just a deterministic "always end up in English" action. The module detects the OS and
+picks a backend at startup; if none of the binaries below are installed, `<C-;>` still leaves Insert
+mode, it just doesn't touch the input source (safe to keep this file even on a machine without any
+IME-switching tool).
+
+| OS | Backend | Install |
+| --- | --- | --- |
+| macOS | [`macism`](https://github.com/laishulu/macism) | `brew install laishulu/homebrew/macism` |
+| Linux | `ibus` | usually preinstalled with the ibus input framework |
+| Linux (fallback) | `fcitx5-remote` | ships with fcitx5; only supports forcing input off (English), not a specific input source id |
+
+`<C-Space>` was considered instead of `<C-;>` but was ruled out — it's already macOS's default
+"previous input source" shortcut (a toggle, not a deterministic switch to English) and it's also
+bound to `cmp.mapping.complete()` in `lua/plugins/cmp.lua`.
+
 ## Keymaps
 
 `<leader>` is `<Space>`.
@@ -89,6 +114,11 @@ Set in `lua/config/options.lua`:
 
 - `jj` (insert mode) — switch to normal mode
 - `<C-h/j/k/l>` — move focus between windows
+
+### IME — `lua/config/ime.lua`
+
+- `<C-;>` (insert mode) — leave to Normal mode and force the input source to English (see [IME Force-English Escape](#ime-force-english-escape-luaconfigimelua))
+- `<C-;>` (terminal mode) — leave the `:terminal` job (e.g. claudecode.nvim's prompt) back to Normal mode and force the input source to English
 
 ### File Explorer — nvim-tree (`lua/plugins/nvim-tree.lua`)
 
