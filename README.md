@@ -23,6 +23,9 @@ LSP servers and formatters (e.g. `lua_ls`, `stylua`) are installed automatically
 1. Install Neovim (macOS: `brew install neovim`).
 2. Clone this repo to `~/.config/nvim`.
 3. Launch `nvim`. On first run, lazy.nvim bootstraps itself and installs all plugins automatically.
+4. Run `bash scripts/install-lazygit-config.sh` to enable the lazygit "AI commit message" custom
+   command (see [lazygit/](#lazygit-ai-commit-message) below). Requires the `claude` CLI to be
+   installed and logged in.
 
 ## Project Structure
 
@@ -302,3 +305,24 @@ To target "files under this path" without searching first, use `:args` + `:argdo
 ```
 
 The `e` flag prevents an error abort on files that don't contain a match.
+
+## lazygit AI commit message
+
+`lazygit/` in this repo holds a custom lazygit command that generates a commit message from the
+staged diff using the `claude` CLI:
+
+```
+lazygit/
+  config.yml                   -- customCommands: Ctrl+a in the files panel
+  scripts/ai-commit-msg.sh     -- builds the prompt, calls `claude -p`, prints a single line
+```
+
+lazygit itself reads its config from `~/Library/Application Support/lazygit/` (macOS) rather than
+from this repo, so `scripts/install-lazygit-config.sh` symlinks the files above into that location.
+Re-run it any time you edit `lazygit/config.yml` or `lazygit/scripts/ai-commit-msg.sh` to be sure —
+though since they're symlinks, edits here take effect immediately without re-running the script.
+
+Per-project commit message style can be customized by adding a
+`.claude/lazygit-commit-instructions.md` file to any git repo (see this repo's own copy for an
+example) — the script uses it as the instructions for `claude` if present, falling back to a
+generic Conventional Commits + Korean rule otherwise.
