@@ -1,157 +1,304 @@
-# Welcome to the My Nvim Configuration!
+# My Neovim Configuration
 
-This is my neovim configuration.
+A personal Neovim setup built on [lazy.nvim](https://github.com/folke/lazy.nvim), focused on file
+navigation, Git workflows, GitHub/PR review, LSP-powered editing, and Claude Code integration.
 
+## Requirements
 
-## Setting up
-1. Install neovim on your system. (brew recommended for macOS users)
-2. Clone this project on `~/.config/nvim`
+- **Neovim** 0.10+ (LSP auto-enable via `vim.lsp.enable` requires a recent build)
+- **git** — used by lazy.nvim to fetch plugins
+- **[Nerd Font](https://www.nerdfonts.com/)** — required for file icons (nvim-web-devicons, bufferline)
+- **[ripgrep](https://github.com/BurntSushi/ripgrep)** — powers Telescope `live_grep`
+- **[lazygit](https://github.com/jesseduffield/lazygit)** — `brew install lazygit`
+- **[ImageMagick](https://imagemagick.org/)** and **[luarocks](https://luarocks.org/)** — required by image.nvim: `brew install imagemagick luarocks`
+- A terminal that supports the **Kitty graphics protocol** (Kitty, WezTerm, etc.) for inline image previews
+- **[GitHub CLI](https://cli.github.com/)**, authenticated — `brew install gh && gh auth login` (required by octo.nvim)
+- **[Claude Code CLI](https://github.com/anthropics/claude-code)** — `npm install -g @anthropic-ai/claude-code`
 
-## key
+LSP servers and formatters (e.g. `lua_ls`, `stylua`) are installed automatically by
+[mason.nvim](https://github.com/williamboman/mason.nvim) on first launch — no manual setup needed.
 
-### vim (Default)
+## Setup
 
-- ^: focus on the first letter of a sentence
-- $: focus on the last letter of a sentence
-- d$: delete from cursor to end of line 
-- ${number}G: focus on a specific line
-- gg: focus on a first line
-- G: focus on a last line
-- y: copy selected text
-- yy: copy current line
-- yw: cpoy word
-- y$: cpoy to end of line
-- "+y: cpoy to system clipboard
-- p: put after cursor
-- P: put before cursor
-- "+p: put from system clipboard
-- u: undo last change
-- ctrl + r: redo last undone change
-- U: undo all recent changes on current line
+1. Install Neovim (macOS: `brew install neovim`).
+2. Clone this repo to `~/.config/nvim`.
+3. Launch `nvim`. On first run, lazy.nvim bootstraps itself and installs all plugins automatically.
 
-### Custom
+## Project Structure
 
-- i: change mode to write mode
-- jj: change mode to read mode 
+```
+init.lua                   -- entry point; loads config.options, config.keymaps, config.lazy
+lua/
+  config/
+    options.lua             -- core vim.opt settings (indentation, clipboard, undo, search, etc.)
+    keymaps.lua              -- global keymaps that don't belong to any single plugin
+    lazy.lua                 -- lazy.nvim bootstrap + plugin spec loader
+  plugins/
+    colorscheme.lua          -- tokyonight theme
+    nvim-tree.lua             -- file explorer
+    telescope.lua             -- fuzzy finder
+    toggleterm.lua            -- floating terminal + lazygit
+    git.lua                   -- gitsigns + gitgraph
+    image.lua                 -- inline image preview
+    octo.lua                  -- GitHub issues/PRs
+    claudecode.lua            -- Claude Code integration
+    bufferline.lua            -- buffer tabs
+    lsp.lua                   -- mason + mason-lspconfig + nvim-lspconfig
+    cmp.lua                   -- nvim-cmp autocompletion
+    conform.lua               -- code formatting
+```
 
-### tree (nvim-tree)
+Every file under `lua/plugins/` is loaded automatically by lazy.nvim (`{ import = "plugins" }` in
+`lua/config/lazy.lua`) — to add a plugin, drop a new spec file in that directory, no other wiring
+required.
 
-#### Default
+## Editor Options
 
-- Enter, o: open file or folder
-- a: create file or folder
-- d: remove file or folder
-- r: rename file or folder
-- I: view hidden files toggle
-- q: close tree view
+Set in `lua/config/options.lua`:
 
-#### Custom
+| Option | Value | Why |
+| --- | --- | --- |
+| `number` / `relativenumber` | on | absolute + relative line numbers |
+| `title` / `titlestring` | on | shows the current directory/file in the terminal title |
+| `termguicolors` | on | true-color support, required for the theme and bufferline/gitsigns colors |
+| `clipboard` | `unnamedplus` | `y`/`p` share the system clipboard automatically |
+| `ignorecase` / `smartcase` | on | case-insensitive search unless the pattern has an uppercase letter |
+| `expandtab` / `shiftwidth` / `tabstop` | 2 spaces | indentation style |
+| `undofile` | on | undo history persists across restarts |
+| `langmap` | Korean → QWERTY | lets normal-mode commands work even while the IME shows Hangul |
 
-- space + e: Fold and unfold the tree view.
-- space + n: focus tree view
+## Keymaps
 
-### Telescope
+`<leader>` is `<Space>`.
 
-#### Custom
+### Vim defaults (reference)
 
-- space + ff: 파일 찾기 (find_files)
-- space + fg: 텍스트 검색 (live_grep)
-- space + fb: 버퍼 목록 (buffers)
-- space + fh: 도움말 검색 (help_tags)
+- `^` / `$` — jump to first / last character of the line
+- `d$` — delete from cursor to end of line
+- `{n}G` / `gg` / `G` — jump to line `{n}` / first line / last line
+- `y`, `yy`, `yw`, `y$` — yank selection / line / word / to end of line
+- `"+y` / `"+p` — yank / put via the system clipboard (not needed here since `clipboard=unnamedplus` is set, but still works explicitly)
+- `p` / `P` — put after / before cursor
+- `u` / `Ctrl-r` — undo / redo
+- `U` — undo all latest changes on the current line
 
-### Git (gitsigns)
+### General (`lua/config/keymaps.lua`)
 
-#### Default
+- `jj` (insert mode) — switch to normal mode
+- `<C-h/j/k/l>` — move focus between windows
 
-- 파일 변경 시 줄 번호 옆에 추가(│), 수정(│), 삭제(\_) 표시가 자동으로 나타남
+### File Explorer — nvim-tree (`lua/plugins/nvim-tree.lua`)
 
-#### Custom
+- `<leader>e` — toggle the tree
+- `<leader>n` — focus the tree window
+- (tree defaults) `Enter`/`o` open, `a` create, `d` delete, `r` rename, `I` toggle hidden files, `q` close
 
-- ]h: 다음 변경 사항으로 이동
-- [h: 이전 변경 사항으로 이동
-- space + gp: 변경 사항 미리보기 (팝업)
-- space + gs: 변경 사항 스테이지 (git add)
-- space + gu: 스테이지 취소
-- space + gr: 변경 사항 되돌리기 (reset)
-- space + gb: 현재 줄의 마지막 커밋 정보 보기 (blame)
+### Telescope (`lua/plugins/telescope.lua`)
 
-### Lazygit (toggleterm)
+- `<leader>ff` — find files
+- `<leader>fg` — live grep
+- `<leader>fb` — list buffers
+- `<leader>fh` — search help tags
 
-#### 사전 요구사항
+### Git — gitsigns (`lua/plugins/git.lua`)
 
-- lazygit 설치 필요: `brew install lazygit`
+- Gutter signs (`│` add/change, `_` delete) appear automatically on changed lines
+- `]h` / `[h` — jump to next / previous hunk
+- `<leader>gp` — preview hunk
+- `<leader>gs` / `<leader>gu` — stage / unstage hunk
+- `<leader>gr` — reset hunk
+- `<leader>gb` — show blame for the current line
 
-#### Custom
+### Git Graph — gitgraph.nvim (`lua/plugins/git.lua`)
 
-- space + lg: Lazygit 열기 (플로팅 터미널)
-- q: Lazygit 종료 (lazygit 내부 단축키)
+- `<leader>gl` — draw the commit graph (all branches, up to 5000 commits)
 
-### Git Graph (gitgraph.nvim)
+### Lazygit — toggleterm (`lua/plugins/toggleterm.lua`)
 
-#### Custom
+- `<leader>lg` — open Lazygit in a floating terminal
+- `q` — quit Lazygit (Lazygit's own keymap)
 
-- space + gl: Git 그래프 보기 (커밋 히스토리를 그래프로 시각화)
+### Image Preview — image.nvim (`lua/plugins/image.lua`)
 
-### Image (image.nvim)
+- Images referenced in Markdown render inline automatically (PNG, JPG, GIF, …)
+- `<leader>ic` — clear all rendered images from the screen
 
-#### 사전 요구사항
+### GitHub — octo.nvim (`lua/plugins/octo.lua`)
 
-- ImageMagick 설치 필요: `brew install imagemagick`
-- Kitty graphics protocol을 지원하는 터미널 필요 (Kitty, WezTerm 등)
-- luarocks 설치 필요: `brew install luarocks`
+- `<leader>oil` / `<leader>oic` — list / create issues
+- `<leader>opl` / `<leader>opc` — list / create PRs
+- `<leader>opd` — view PR diff
+- `<leader>opm` — merge PR
+- `<leader>oca` — add comment
+- `<leader>ora` / `<leader>ors` — start / submit review
+- `<leader>olb` — add label
+- `<leader>oas` — add assignee
 
-#### Default
+### Claude Code — claudecode.nvim (`lua/plugins/claudecode.lua`)
 
-- Markdown 파일 내 이미지를 자동으로 인라인 미리보기
-- 지원 형식: PNG, JPG, GIF 등
+- `<leader>ac` — toggle the Claude terminal
+- `<leader>af` — focus the Claude terminal
+- `<leader>ar` — resume the previous conversation (`--resume`)
+- `<leader>aC` — continue the conversation (`--continue`)
+- `<leader>am` — select model
+- `<leader>ab` — add the current buffer to Claude's context
+- `<leader>as` (visual mode) — send the selection to Claude
+- `<leader>as` (in nvim-tree/neo-tree/oil/etc.) — add the selected file to Claude's context
+- `<leader>aa` / `<leader>ad` — accept / deny a diff
 
-#### Custom
+### Buffers — bufferline.nvim (`lua/plugins/bufferline.lua`)
 
-- space + ic: 화면의 이미지 모두 지우기
+- `<Tab>` / `<S-Tab>` — next / previous buffer
 
-### GitHub (octo.nvim)
+### LSP (`lua/plugins/lsp.lua`)
 
-#### 사전 요구사항
+Servers are installed automatically via mason.nvim (`ensure_installed` in `lua/plugins/lsp.lua`);
+currently only `lua_ls`. `folke/lazydev.nvim` additionally provides accurate `vim.*` API
+completion when editing Lua files in this config itself.
 
-- GitHub CLI 설치 및 인증 필요: `brew install gh && gh auth login`
+- `gd` — go to definition
+- `gD` — go to declaration
+- `gr` — list references
+- `gi` — go to implementation
+- `K` — hover documentation
+- `<leader>cr` — rename symbol
+- `<leader>ca` — code action
+- `]d` / `[d` — next / previous diagnostic
 
-#### Custom
+To add a language: append its `lspconfig` server name to `ensure_installed` in `lua/plugins/lsp.lua`
+(mason will install the binary on next launch).
 
-- space + oil: 이슈 목록 보기
-- space + oic: 이슈 생성
-- space + opl: PR 목록 보기
-- space + opc: PR 생성
-- space + opd: PR diff 보기
-- space + opm: PR 병합
-- space + oca: 코멘트 추가
-- space + ora: 리뷰 시작
-- space + ors: 리뷰 제출
-- space + olb: 라벨 추가
-- space + oas: 담당자 추가
+### Completion — nvim-cmp (`lua/plugins/cmp.lua`)
 
-### Claude Code (claudecode.nvim)
+- `<C-n>` / `<C-p>` — select next / previous completion item
+- `<C-Space>` — trigger completion manually
+- `<CR>` — confirm the selected item
 
-#### 사전 요구사항
+### Formatting — conform.nvim (`lua/plugins/conform.lua`)
 
-- Claude Code CLI 설치 필요: `npm install -g @anthropic-ai/claude-code`
-- snacks.nvim 의존성 (자동 설치됨)
+- `<leader>cf` (normal/visual) — format the buffer/selection (`stylua` for Lua, falls back to the LSP formatter if no formatter is configured for the filetype)
 
-#### Custom
+## lazy.nvim
 
-- space + ac: Claude 터미널 토글 (열기/닫기)
-- space + af: Claude 터미널로 포커스 이동
-- space + ar: 이전 대화 이어하기 (--resume)
-- space + aC: 대화 계속하기 (--continue)
-- space + am: Claude 모델 선택
-- space + ab: 현재 버퍼를 Claude 컨텍스트에 추가
-- space + as: (Visual 모드) 선택한 텍스트를 Claude에 전송
-- space + as: (파일 탐색기) 파일을 Claude 컨텍스트에 추가
-- space + aa: Diff 수락
-- space + ad: Diff 거부
+`lua/config/lazy.lua` enables the update checker (`checker.enabled = true`), so lazy.nvim notifies
+you in its UI (`:Lazy`) when a newer plugin version is available — it never updates automatically.
+Run `:Lazy update` to apply updates, or `:Lazy sync` to install/update/clean in one step.
 
-### buffer (bufferline)
+## Workflow: Project-wide Find & Replace (Telescope + quickfix)
 
-#### Custom
+How to replace the same phrase across many files at once.
+Example: replace `ESLint plugin` with `ESLint` everywhere in the project.
 
-- Tab: next buffer
-- Shift + Tab: previous buffer
+### Background
+
+The **quickfix list** is Neovim's single, built-in store of `file + line + content` entries — grep
+results, LSP diagnostics, search results, etc. Once populated, `:cdo`/`:cfdo` can run a command
+across every entry in bulk, which is what makes project-wide replace possible.
+
+Telescope's `<C-q>` sends **all** current results to the quickfix list (`Enter` instead jumps to
+just one and closes Telescope).
+
+### Steps
+
+1. **Search**
+
+   ```
+   <leader>fg        (:Telescope live_grep)
+   ```
+
+   Type `ESLint plugin` as the search term. A results list appears.
+
+2. **Send all results to quickfix**
+
+   ```
+   Ctrl-q
+   ```
+
+   Telescope closes and the quickfix window opens with every matched location.
+
+3. **Replace in bulk**
+
+   ```vim
+   :cfdo %s/ESLint plugin/ESLint/g | update
+   ```
+
+4. Done. Close the quickfix window with `:cclose`.
+
+### Command breakdown
+
+`:cfdo %s/ESLint plugin/ESLint/g | update`
+
+| Piece | Meaning |
+| --- | --- |
+| `:cfdo` | run the following command once per **file** that appears in the quickfix list |
+| `%s/A/B/g` | replace A with B across the whole file (`%`), all occurrences per line (`g`) |
+| `\| update` | save only if the file changed. **Without this, cfdo can't move to the next file and errors out** |
+
+### `:cdo` vs `:cfdo`
+
+- `:cdo` — runs once per quickfix **entry**. 3 matches in one file → runs 3 times.
+- `:cfdo` — runs once per **file** that appears in the quickfix list.
+
+Since `%s/.../g` already sweeps the entire file, pair it with `:cfdo` to avoid redundant runs. If you
+only want to change the matched line itself (`s/.../ ` without `%`), use `:cdo` instead.
+
+### Safety nets
+
+- **Preview each replacement** — use the `gc` flag instead of `g` to be prompted y/n at every match:
+
+  ```vim
+  :cfdo %s/ESLint plugin/ESLint/gc | update
+  ```
+
+- **Undo** — right after replacing, the quickfix list is still intact, so:
+
+  ```vim
+  :cfdo undo | update
+  ```
+
+- Committing before the replace makes it easy to review the result with `git diff`.
+
+### Telescope keymaps for this workflow
+
+| Key | Action |
+| --- | --- |
+| `<C-q>` | send **all** results to quickfix |
+| `<M-q>` (Alt-q) | send only the **multi-selected** entries to quickfix |
+| `<Tab>` | toggle multi-select on an entry |
+
+To replace only some matches, multi-select with `<Tab>` and send with `<M-q>`.
+
+### Quickfix commands
+
+```vim
+:copen      " open the quickfix window
+:cclose     " close it
+:cnext      " go to the next entry (:cn)
+:cprev      " go to the previous entry (:cp)
+:cfirst     " go to the first entry
+:clast      " go to the last entry
+```
+
+### Without Telescope
+
+Sometimes `<C-q>` gets intercepted by the terminal's flow control and doesn't fire (adding
+`stty -ixon` to your shell config fixes this). In that case, use `:grep` instead — it populates the
+quickfix list the same way.
+
+```vim
+:set grepprg=rg\ --vimgrep        " use ripgrep (put this in options.lua so you don't repeat it)
+:grep "ESLint plugin" src/
+:copen
+:cfdo %s/ESLint plugin/ESLint/g | update
+```
+
+### Targeting files directly (argdo)
+
+To target "files under this path" without searching first, use `:args` + `:argdo`.
+
+```vim
+:args src/content/**/*.mdx
+:argdo %s/ESLint plugin/ESLint/ge | update
+```
+
+The `e` flag prevents an error abort on files that don't contain a match.
