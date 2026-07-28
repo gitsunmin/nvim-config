@@ -3,7 +3,8 @@
     "allow": [
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('\\\\n'.join\\(d.keys\\(\\)\\)\\)\")",
       "Bash(nvim --headless \"+lua print\\('OK plugins=' .. #require\\('lazy'\\).plugins\\(\\)\\)\" +qa)",
-      "Bash(git -C /Users/kimsunmin/.config/nvim status --short)"
+      "Bash(git -C /Users/kimsunmin/.config/nvim status --short)",
+      "Bash(chmod +x *)"
     ]
   }
 }
