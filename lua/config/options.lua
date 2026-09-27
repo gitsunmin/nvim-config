@@ -19,6 +19,9 @@ vim.opt.termguicolors = true
 -- 시스템 클립보드와 자동 공유 (별도 "+ 접두사 없이 y/p 사용 가능)
 vim.opt.clipboard = "unnamedplus"
 
+-- 모든 모드에서 마우스 사용 (클릭 이동, 스크롤, 창 크기 조절 등)
+vim.opt.mouse = "a"
+
 -- 검색
 vim.opt.ignorecase = true
 vim.opt.smartcase = true

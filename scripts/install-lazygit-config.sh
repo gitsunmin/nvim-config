@@ -26,6 +26,7 @@ link() {
 
 link "${SRC_DIR}/config.yml" "${LAZYGIT_CONFIG_DIR}/config.yml"
 link "${SRC_DIR}/scripts/ai-commit-msg.sh" "${LAZYGIT_CONFIG_DIR}/scripts/ai-commit-msg.sh"
+link "${SRC_DIR}/scripts/ai-commit.sh" "${LAZYGIT_CONFIG_DIR}/scripts/ai-commit.sh"
 
 echo "완료. lazygit을 열어 files 패널에서 Ctrl+a 로 AI 커밋 메시지 생성 기능을 사용할 수 있습니다."
 echo "(사전 요구사항: claude CLI 설치 및 로그인 - README 참고)"

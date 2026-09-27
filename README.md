@@ -11,6 +11,7 @@ navigation, Git workflows, GitHub/PR review, LSP-powered editing, and Claude Cod
 - **[ripgrep](https://github.com/BurntSushi/ripgrep)** — powers Telescope `live_grep`
 - **[lazygit](https://github.com/jesseduffield/lazygit)** — `brew install lazygit`
 - **[ImageMagick](https://imagemagick.org/)** and **[luarocks](https://luarocks.org/)** — required by image.nvim: `brew install imagemagick luarocks`
+- **[tree-sitter CLI](https://github.com/tree-sitter/tree-sitter)** 0.26.1+ and a C compiler — required by nvim-treesitter (`main` branch) to build parsers: `brew install tree-sitter-cli`
 - A terminal that supports the **Kitty graphics protocol** (Kitty, WezTerm, etc.) for inline image previews
 - **[GitHub CLI](https://cli.github.com/)**, authenticated — `brew install gh && gh auth login` (required by octo.nvim)
 - **[Claude Code CLI](https://github.com/anthropics/claude-code)** — `npm install -g @anthropic-ai/claude-code`
@@ -67,6 +68,7 @@ Set in `lua/config/options.lua`:
 | `title` / `titlestring` | on | shows the current directory/file in the terminal title |
 | `termguicolors` | on | true-color support, required for the theme and bufferline/gitsigns colors |
 | `clipboard` | `unnamedplus` | `y`/`p` share the system clipboard automatically |
+| `mouse` | `a` | mouse support in all modes (click, scroll, resize splits) |
 | `ignorecase` / `smartcase` | on | case-insensitive search unless the pattern has an uppercase letter |
 | `expandtab` / `shiftwidth` / `tabstop` | 2 spaces | indentation style |
 | `undofile` | on | undo history persists across restarts |
@@ -150,6 +152,15 @@ bound to `cmp.mapping.complete()` in `lua/plugins/cmp.lua`.
 
 - `<leader>lg` — open Lazygit in a floating terminal
 - `q` — quit Lazygit (Lazygit's own keymap)
+
+### Syntax Highlighting — nvim-treesitter (`lua/plugins/treesitter.lua`)
+
+- Uses the **`main`** branch, which is a full rewrite: parsers are not installed and
+  highlighting is not enabled automatically, so both are done explicitly in the config
+- Parsers install to `~/.local/share/nvim/site/parser` (`:TSInstall <lang>` to add more,
+  `:TSUpdate` to refresh, `:checkhealth nvim-treesitter` to diagnose)
+- Highlighting is enabled by a `FileType` autocommand; files over 1 MB fall back to Vim syntax
+- Treesitter-based folding is available but commented out in the config
 
 ### Image Preview — image.nvim (`lua/plugins/image.lua`)
 
@@ -343,13 +354,23 @@ staged diff using the `claude` CLI:
 
 ```
 lazygit/
-  config.yml                   -- customCommands: Ctrl+a in the files panel
+  config.yml                   -- customCommands: Ctrl+a in the files panel (output: terminal)
+  scripts/ai-commit.sh         -- terminal entry point: spinner + progress, then `git commit -e`
   scripts/ai-commit-msg.sh     -- builds the prompt, calls `claude -p`, prints a single line
 ```
 
+Pressing `Ctrl+a` suspends lazygit and hands the terminal to `ai-commit.sh`, which prints the
+staged diff summary, animates a spinner with an elapsed-second counter while `claude` runs, then
+opens the editor with the generated message pre-filled (`git commit -e -m ...`). Saving commits;
+emptying the buffer aborts. The progress display is why the command runs as a subprocess — lazygit
+evaluates `prompts[].initialValue` templates synchronously, so the previous inline-prompt version
+could not show any loading state at all.
+
+`ai-commit-msg.sh` is still a standalone one-line message generator and can be called directly.
+
 lazygit itself reads its config from `~/Library/Application Support/lazygit/` (macOS) rather than
 from this repo, so `scripts/install-lazygit-config.sh` symlinks the files above into that location.
-Re-run it any time you edit `lazygit/config.yml` or `lazygit/scripts/ai-commit-msg.sh` to be sure —
+Re-run it any time you add a file under `lazygit/` to be sure —
 though since they're symlinks, edits here take effect immediately without re-running the script.
 
 Per-project commit message style can be customized by adding a

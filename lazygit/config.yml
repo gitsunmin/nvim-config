@@ -2,10 +2,10 @@ customCommands:
   - key: "<c-a>"
     context: "files"
     description: "AI로 커밋 메시지 생성 후 커밋"
-    loadingText: "Claude가 staged diff를 분석해 커밋 메시지를 생성하는 중..."
-    prompts:
-      - type: "input"
-        title: "커밋 메시지 (AI 생성 - 자유롭게 수정 가능)"
-        key: "CommitMessage"
-        initialValue: "{{ runCommand \"'/Users/kimsunmin/Library/Application Support/lazygit/scripts/ai-commit-msg.sh'\" }}"
-    command: "git commit -m {{.Form.CommitMessage | quote}}"
+    # output: terminal → lazygit을 잠시 내려두고 스크립트가 터미널을 직접 제어한다.
+    # 덕분에 생성 중 스피너/경과시간을 표시하고, 완료 후 에디터로 메시지를 수정할 수 있다.
+    output: terminal
+    command: >-
+      bash -c 'd="$HOME/Library/Application Support/lazygit";
+      [ -d "$d" ] || d="${XDG_CONFIG_HOME:-$HOME/.config}/lazygit";
+      exec bash "$d/scripts/ai-commit.sh"'
