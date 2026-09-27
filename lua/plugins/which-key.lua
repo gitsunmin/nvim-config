@@ -16,6 +16,7 @@ return {
       { "<leader>g", group = "Git" },
       { "<leader>i", group = "이미지" },
       { "<leader>l", group = "Lazygit" },
+      { "<leader>m", group = "마크다운" },
       { "<leader>o", group = "GitHub (Octo)" },
       { "<leader>oi", group = "이슈" },
       { "<leader>op", group = "PR" },

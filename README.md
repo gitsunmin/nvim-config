@@ -46,6 +46,7 @@ lua/
     toggleterm.lua            -- floating terminal + lazygit
     git.lua                   -- gitsigns + gitgraph
     image.lua                 -- inline image preview
+    render-markdown.lua       -- in-buffer Markdown rendering (headings, tables, checkboxes, callouts)
     octo.lua                  -- GitHub issues/PRs
     claudecode.lua            -- Claude Code integration
     bufferline.lua            -- buffer tabs
@@ -166,6 +167,33 @@ bound to `cmp.mapping.complete()` in `lua/plugins/cmp.lua`.
 
 - Images referenced in Markdown render inline automatically (PNG, JPG, GIF, …)
 - `<leader>ic` — clear all rendered images from the screen
+
+### Markdown Rendering — render-markdown.nvim (`lua/plugins/render-markdown.lua`)
+
+Renders Markdown **inside the buffer** — headings get icons and background bars, code blocks get a
+background and language label, tables are drawn with box characters, and `- [ ]` / `- [x]`
+checkboxes, `> [!NOTE]`-style callouts, bullets, quotes, and horizontal rules are replaced with
+icons. Loads on `markdown` and `mdx` filetypes; images are still handled by image.nvim.
+
+How it behaves:
+
+- Rendering is on only in **Normal / Command / Terminal** mode — entering Insert mode shows the raw
+  Markdown, so editing is never obstructed
+- The **cursor line** always shows its raw text (anti-conceal), so you can move through the file and
+  see the syntax exactly where you are editing
+- Typing `- [` or `> [!` offers checkbox states / callout types in the nvim-cmp completion menu
+  (render-markdown's in-process LSP, picked up by the `nvim_lsp` source)
+- Relies on the `markdown` / `markdown_inline` treesitter parsers (already in `lua/plugins/treesitter.lua`)
+
+Keymaps (buffer-local, only in `markdown` / `mdx` buffers; grouped under `<leader>m` in which-key):
+
+- `<leader>mm` — toggle rendering for the current buffer
+- `<leader>mM` — toggle rendering globally (all buffers)
+- `<leader>mp` — open a rendered preview in a side window (edit raw on the left, read rendered on the right)
+- `<leader>me` / `<leader>mc` — expand / contract the raw-text area around the cursor (anti-conceal margin)
+
+Commands: `:RenderMarkdown [enable|disable|toggle|buf_toggle|preview|expand|contract]`,
+`:checkhealth render-markdown` to diagnose missing parsers or conflicting plugins.
 
 ### GitHub — octo.nvim (`lua/plugins/octo.lua`)
 
