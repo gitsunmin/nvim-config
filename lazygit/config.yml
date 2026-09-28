@@ -9,3 +9,18 @@ customCommands:
       bash -c 'd="$HOME/Library/Application Support/lazygit";
       [ -d "$d" ] || d="${XDG_CONFIG_HOME:-$HOME/.config}/lazygit";
       exec bash "$d/scripts/ai-commit.sh"'
+
+git:
+  # difftastic(difft)으로 구문 인식 diff를 보여준다. `|` / `\` 키로 아래 순서대로 전환한다.
+  # extDiff는 git의 --ext-diff로 difft를 호출하므로 lazygit 안에서만 적용되고,
+  # 전역 git diff(diff.external)나 gitsigns에는 영향을 주지 않는다.
+  diffRenderers:
+    - type: extDiff
+      name: difft side-by-side
+      command: difft --color=always --display=side-by-side-show-both --context={{diffContext}}
+    - type: extDiff
+      name: difft inline
+      command: difft --color=always --display=inline --context={{diffContext}}
+    # git 기본 diff: difft는 보기 전용이라 라인 단위 staging 화면은 이 형식을 쓴다.
+    - type: rawGit
+      name: default

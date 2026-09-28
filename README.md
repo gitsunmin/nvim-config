@@ -10,6 +10,7 @@ navigation, Git workflows, GitHub/PR review, LSP-powered editing, and Claude Cod
 - **[Nerd Font](https://www.nerdfonts.com/)** — required for file icons (nvim-web-devicons, bufferline)
 - **[ripgrep](https://github.com/BurntSushi/ripgrep)** — powers Telescope `live_grep`
 - **[lazygit](https://github.com/jesseduffield/lazygit)** — `brew install lazygit`
+- **[difftastic](https://difftastic.wilfred.me.uk/)** — syntax-aware diffs inside lazygit: `brew install difftastic`
 - **[ImageMagick](https://imagemagick.org/)** and **[luarocks](https://luarocks.org/)** — required by image.nvim: `brew install imagemagick luarocks`
 - **[tree-sitter CLI](https://github.com/tree-sitter/tree-sitter)** 0.26.1+ and a C compiler — required by nvim-treesitter (`main` branch) to build parsers: `brew install tree-sitter-cli`
 - A terminal that supports the **Kitty graphics protocol** (Kitty, WezTerm, etc.) for inline image previews
@@ -151,8 +152,9 @@ bound to `cmp.mapping.complete()` in `lua/plugins/cmp.lua`.
 
 ### Lazygit — toggleterm (`lua/plugins/toggleterm.lua`)
 
-- `<leader>lg` — open Lazygit in a floating terminal
+- `<leader>lg` — open Lazygit in a floating terminal (95% × 90% of the editor, wide enough for side-by-side diffs)
 - `q` — quit Lazygit (Lazygit's own keymap)
+- `|` / `\` — cycle diff renderers: difft side-by-side → difft inline → git default (see [lazygit + difftastic](#lazygit--difftastic))
 
 ### Syntax Highlighting — nvim-treesitter (`lua/plugins/treesitter.lua`)
 
@@ -405,3 +407,23 @@ Per-project commit message style can be customized by adding a
 `.claude/lazygit-commit-instructions.md` file to any git repo (see this repo's own copy for an
 example) — the script uses it as the instructions for `claude` if present, falling back to a
 generic Conventional Commits + Korean rule otherwise.
+
+## lazygit + difftastic
+
+`lazygit/config.yml` registers [difftastic](https://difftastic.wilfred.me.uk/) (`difft`) as lazygit's
+diff renderer via `git.diffRenderers` (lazygit 0.65+; older versions called this `git.paging` /
+`git.pagers`). Three renderers are configured, cycled with `|` (forward) and `\` (backward):
+
+1. **difft side-by-side** (default) — `--display=side-by-side-show-both`
+2. **difft inline** — `--display=inline`
+3. **default** — git's raw diff
+
+The difft entries use `type: extDiff`, so lazygit calls them through `git diff --ext-diff` only for
+its own views. The global `diff.external` git config is left untouched, so `git diff` on the command
+line and gitsigns keep their normal output. `{{diffContext}}` passes lazygit's context size
+(`{` / `}`) through to difft, and difft wraps long lines to the diff panel width on its own.
+
+difft is view-only: the line/hunk staging view (`Enter` on a file) always uses git's own diff.
+Switch to the **default** renderer when you want the main panel to match what you stage.
+
+No plugin (e.g. difftastic.nvim) is involved — this is lazygit config only.
